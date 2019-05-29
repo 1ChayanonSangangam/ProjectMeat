@@ -1,0 +1,27 @@
+{
+    "name": "meat-chain-processor",
+    "version": "0.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "start": "node index.js",
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/1ChayanonSangangam/ProjectMeat"
+    },
+    "author": "Zac Delventhal <delventhalz@gmail.com>",
+    "license": "Apache-2.0",
+    "bugs": {
+      "url": "https://github.com/1ChayanonSangangam/ProjectMeat"
+    },
+    "homepage": "https://github.com/1ChayanonSangangam/ProjectMeat",
+    "dependencies": {
+      "sawtooth-sdk": "^0.8.1"
+    },
+    "devDependencies": {
+      "request": "^2.81.0"
+    }
+  }
+  
