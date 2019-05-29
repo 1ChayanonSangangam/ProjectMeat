@@ -10,7 +10,7 @@ const getAddress = (key, length = 64) => {
   return createHash('sha512').update(key).digest('hex').slice(0, length)
 }
 
-const FAMILY = 'transfer-chain'
+const FAMILY = 'Meatchain-chain'
 const PREFIX = getAddress(FAMILY, 6)
 
 const getAssetAddress = name => PREFIX + '00' + getAddress(name, 62)
@@ -36,73 +36,73 @@ const createAsset = (asset, owner, state) => {
     })
 }
 
-// Add a new transfer to state
-const transferAsset = (asset, owner, signer, state) => {
-  const address = getTransferAddress(asset)
-  const assetAddress = getAssetAddress(asset)
+// // Add a new transfer to state
+// const transferAsset = (asset, owner, signer, state) => {
+//   const address = getTransferAddress(asset)
+//   const assetAddress = getAssetAddress(asset)
 
-  return state.get([assetAddress])
-    .then(entries => {
-      const entry = entries[assetAddress]
-      if (!entry || entry.length === 0) {
-        throw new InvalidTransaction('Asset does not exist')
-      }
+//   return state.get([assetAddress])
+//     .then(entries => {
+//       const entry = entries[assetAddress]
+//       if (!entry || entry.length === 0) {
+//         throw new InvalidTransaction('Asset does not exist')
+//       }
 
-      if (signer !== decode(entry).owner) {
-        throw new InvalidTransaction('Only an Asset\'s owner may transfer it')
-      }
+//       if (signer !== decode(entry).owner) {
+//         throw new InvalidTransaction('Only an Asset\'s owner may transfer it')
+//       }
 
-      return state.set({
-        [address]: encode({asset, owner})
-      })
-    })
-}
+//       return state.set({
+//         [address]: encode({asset, owner})
+//       })
+//     })
+// }
 
-// Accept a transfer, clearing it and changing asset ownership
-const acceptTransfer = (asset, signer, state) => {
-  const address = getTransferAddress(asset)
+// // Accept a transfer, clearing it and changing asset ownership
+// const acceptTransfer = (asset, signer, state) => {
+//   const address = getTransferAddress(asset)
 
-  return state.get([address])
-    .then(entries => {
-      const entry = entries[address]
-      if (!entry || entry.length === 0) {
-        throw new InvalidTransaction('Asset is not being transfered')
-      }
+//   return state.get([address])
+//     .then(entries => {
+//       const entry = entries[address]
+//       if (!entry || entry.length === 0) {
+//         throw new InvalidTransaction('Asset is not being transfered')
+//       }
 
-      if (signer !== decode(entry).owner) {
-        throw new InvalidTransaction(
-          'Transfers can only be accepted by the new owner'
-        )
-      }
+//       if (signer !== decode(entry).owner) {
+//         throw new InvalidTransaction(
+//           'Transfers can only be accepted by the new owner'
+//         )
+//       }
 
-      return state.set({
-        [address]: Buffer(0),
-        [getAssetAddress(asset)]: encode({name: asset, owner: signer})
-      })
-    })
-}
+//       return state.set({
+//         [address]: Buffer(0),
+//         [getAssetAddress(asset)]: encode({name: asset, owner: signer})
+//       })
+//     })
+// }
 
-// Reject a transfer, clearing it
-const rejectTransfer = (asset, signer, state) => {
-  const address = getTransferAddress(asset)
+// // Reject a transfer, clearing it
+// const rejectTransfer = (asset, signer, state) => {
+//   const address = getTransferAddress(asset)
 
-  return state.get([address])
-    .then(entries => {
-      const entry = entries[address]
-      if (!entry || entry.length === 0) {
-        throw new InvalidTransaction('Asset is not being transfered')
-      }
+//   return state.get([address])
+//     .then(entries => {
+//       const entry = entries[address]
+//       if (!entry || entry.length === 0) {
+//         throw new InvalidTransaction('Asset is not being transfered')
+//       }
 
-      if (signer !== decode(entry).owner) {
-        throw new InvalidTransaction(
-          'Transfers can only be rejected by the potential new owner')
-      }
+//       if (signer !== decode(entry).owner) {
+//         throw new InvalidTransaction(
+//           'Transfers can only be rejected by the potential new owner')
+//       }
 
-      return state.set({
-        [address]: Buffer(0)
-      })
-    })
-}
+//       return state.set({
+//         [address]: Buffer(0)
+//       })
+//     })
+// }
 
 // Handler for JSON encoded payloads
 class JSONHandler extends TransactionHandler {

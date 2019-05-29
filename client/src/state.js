@@ -8,10 +8,10 @@ const {
 } = require('sawtooth-sdk/client')
 
 // Config variables
-const KEY_NAME = 'transfer-chain.keys'
+const KEY_NAME = 'Meatchain-chain.keys'
 const API_URL = 'http://localhost:8008'
 
-const FAMILY = 'transfer-chain'
+const FAMILY = 'Meatchain-chain'
 const VERSION = '0.0'
 const PREFIX = '19d832'
 

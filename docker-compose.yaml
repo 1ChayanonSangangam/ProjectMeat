@@ -19,7 +19,7 @@ services:
 
   validator:
     image: hyperledger/sawtooth-validator:0.8
-    container_name: transfer-validator
+    container_name: Chainmeat-validator
     expose:
       - 4004
     ports:
@@ -40,14 +40,14 @@ services:
 
   settings-tp:
     image: hyperledger/sawtooth-tp_settings:0.8
-    container_name: transfer-settings-tp
+    container_name: Chainmeat-settings-tp
     depends_on:
       - validator
     entrypoint: settings-tp -vv tcp://validator:4004
 
   rest-api:
     image: hyperledger/sawtooth-rest_api:0.8
-    container_name: transfer-rest-api
+    container_name: Chainmeat-rest-api
     expose:
       - 8008
     ports:
@@ -58,7 +58,7 @@ services:
 
   shell:
     image: hyperledger/sawtooth-shell:0.8
-    container_name: transfer-shell
+    container_name: Chainmeat-shell
     depends_on:
       - rest-api
     entrypoint: |
