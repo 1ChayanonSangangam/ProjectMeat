@@ -1,15 +1,17 @@
 'use strict'
 
 const $ = require('jquery')
+const {createHash} = require('crypto')
+const protobuf = require('sawtooth-sdk/protobuf')
 const {
-  signer,
-  BatchEncoder,
-  TransactionEncoder
-} = require('sawtooth-sdk/client')
+  createContext,
+  Signer
+} = require('sawtooth-sdk/signing')
+const secp256k1 = require('sawtooth-sdk/signing/secp256k1')
 
 // Config variables
 const KEY_NAME = 'Meatchain-chain.keys'
-const API_URL = 'http://localhost:8008'
+const API_URL = 'http://localhost:8081/api'
 
 const FAMILY = 'Meatchain-chain'
 const VERSION = '0.0'
@@ -31,10 +33,11 @@ const getKeys = () => {
 
 // Create new key-pair
 const makeKeyPair = () => {
-  const privateKey = signer.makePrivateKey()
+  const context = createContext('secp256k1')
+  const privateKey = context.newRandomPrivateKey()
   return {
-    public: signer.getPublicKey(privateKey),
-    private: privateKey
+    public: context.getPublicKey(privateKey).asHex(),
+    private: privateKey.asHex()
   }
 }
 
@@ -59,21 +62,51 @@ const getState = cb => {
 }
 
 // Submit signed Transaction to validator
-const submitUpdate = (payload, privateKey, cb) => {
-  const transaction = new TransactionEncoder(privateKey, {
-    inputs: [PREFIX],
-    outputs: [PREFIX],
+const submitUpdate = (payload, privateKeyHex, cb) => {
+  // Create signer
+  const context = createContext('secp256k1')
+  const privateKey = secp256k1.Secp256k1PrivateKey.fromHex(privateKeyHex)
+  const signer = new Signer(context, privateKey)
+  // Create the TransactionHeader
+  const payloadBytes = Buffer.from(JSON.stringify(payload))
+  const transactionHeaderBytes = protobuf.TransactionHeader.encode({
     familyName: FAMILY,
     familyVersion: VERSION,
     payloadEncoding: 'application/json',
-    payloadEncoder: p => Buffer.from(JSON.stringify(p))
-  }).create(payload)
-
-  const batchBytes = new BatchEncoder(privateKey).createEncoded(transaction)
-
+    inputs: [PREFIX],
+    outputs: [PREFIX],
+    signerPublicKey: signer.getPublicKey().asHex(),
+    batcherPublicKey: signer.getPublicKey().asHex(),
+    dependencies: [],
+    payloadSha512: createHash('sha512').update(payloadBytes).digest('hex')
+  }).finish()
+  // Create the Transaction
+  const transactionHeaderSignature = signer.sign(transactionHeaderBytes)
+  const transaction = protobuf.Transaction.create({
+   header: transactionHeaderBytes,
+   headerSignature: transactionHeaderSignature,
+   payload: payloadBytes
+  })
+  // Create the BatchHeader
+  const batchHeaderBytes = protobuf.BatchHeader.encode({
+    signerPublicKey: signer.getPublicKey().asHex(),
+    transactionIds: [transaction.headerSignature]
+  }).finish()
+  // Create the Batch
+  const batchHeaderSignature = signer.sign(batchHeaderBytes)
+  const batch = protobuf.Batch.create({
+   header: batchHeaderBytes,
+   headerSignature: batchHeaderSignature,
+   transactions: [transaction]
+  })
+   // Encode the Batch in a BatchList
+   const batchListBytes = protobuf.BatchList.encode({
+    batches: [batch]
+  }).finish()
+   // Submit BatchList to Validator
   $.post({
     url: `${API_URL}/batches?wait`,
-    data: batchBytes,
+    data: batchListBytes,
     headers: {'Content-Type': 'application/octet-stream'},
     processData: false,
     // Any data object indicates the Batch was not committed
