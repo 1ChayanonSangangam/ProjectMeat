@@ -16,6 +16,7 @@ const API_URL = 'http://localhost:8000/api'
 const FAMILY = 'Meatchain-chain'
 const VERSION = '0.0'
 const PREFIX = '19d832'
+const STORAGE_KEY = 'asset_track.authorization'
 
 // Fetch key-pairs from localStorage
 const getKeys = () => {
@@ -35,6 +36,7 @@ const getKeys = () => {
 const makeKeyPair = () => {
   const context = createContext('secp256k1')
   const privateKey = context.newRandomPrivateKey()
+  window.localStorage.setItem(STORAGE_KEY,privateKey)
   return {
     public: context.getPublicKey(privateKey).asHex(),
     private: privateKey.asHex()
