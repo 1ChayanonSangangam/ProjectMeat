@@ -5,7 +5,7 @@ const _ = require('lodash')
 const sjcl = require('sjcl')
 
 const API_PATH = 'api/'
-const STORAGE_KEY = 'fish_net.authorization'
+const STORAGE_KEY = 'projectmeat.authorization'
 let authToken = null
 
 /**
