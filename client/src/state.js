@@ -11,7 +11,7 @@ const secp256k1 = require('sawtooth-sdk/signing/secp256k1')
 
 // Config variables
 const KEY_NAME = 'Meatchain-chain.keys'
-const API_URL = 'http:/158.108.207.134:8000/api'
+const API_URL = 'http:/localhost:8000/api'
 
 const FAMILY = 'Meatchain-chain'
 const VERSION = '0.0'
@@ -22,7 +22,6 @@ const STORAGE_KEY = 'asset_track.authorization'
 const getKeys = () => {
   const storedKeys = localStorage.getItem(KEY_NAME)
   if (!storedKeys) return []
-
   return storedKeys.split(';').map((pair) => {
     const separated = pair.split(',')
     return {
